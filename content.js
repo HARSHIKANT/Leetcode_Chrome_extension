@@ -1,4 +1,3 @@
-const aiHelpURL = chrome.runtime.getURL('assets/bookmark.png');
 
 window.addEventListener('load', addAIHelpButton);
 
@@ -153,7 +152,7 @@ function addNewAIHandler() {
     // Append input container to chat box
     chatBox.appendChild(inputContainer);
 
-    userInput.addEventListener('keypress', function(event) {
+    userInput.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && !event.shiftKey) { // Enter without Shift
             event.preventDefault(); // prevent newline
             const text = userInput.value.trim();
@@ -181,54 +180,46 @@ function addNewAIHandler() {
             msgBubble.style.wordWrap = 'break-word';
             msgBubble.style.marginBottom = '4px';
             msgBubble.style.alignSelf = 'flex-end'; // top-right alignment
-            //const messagesContainer = document.getElementById('ai-messages-container');
-            //messagesContainer.appendChild(msgBubble);
 
-            // Send message to background script
-            // chrome.runtime.sendMessage({ action: "solveProblem", problem: `${problemTitle}\n\n${description}\n\n${currentCode}` }, function(response) {
-            //     if (response && response.success) {
-            //         const aiResponse = response.solution;
-            //         const aiMsgBubble = document.createElement('div');
-            //         aiMsgBubble.textContent = `🤖: ${aiResponse}`;
-            //         aiMsgBubble.style.width = '100%';
-            //         aiMsgBubble.style.alignSelf = 'flex-start'; // left-aligned
-            //         aiMsgBubble.style.backgroundColor = '#444';
-            //         aiMsgBubble.style.color = '#fff';
-            //         aiMsgBubble.style.padding = '6px 10px';
-            //         aiMsgBubble.style.borderRadius = '12px';
-            //         aiMsgBubble.style.marginBottom = '4px';
-            //         aiMsgBubble.style.fontSize = '12px';
-            //         aiMsgBubble.style.flexShrink = 0; // keep visible
+            // Get AI response from using fetch
 
-            //         messagesContainer.appendChild(aiMsgBubble);
-            //         // Scroll to bottom
-            //         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            //         userInput.value = '';
-            //         userInput.style.height = 'auto';
-            //     } else {
-            //         console.error("Error from background:", response ? response.error : "No response");
-            //     }
-            // });
-    
+            
+
             // Append to messages container
             const messagesContainer = document.getElementById('ai-messages-container'); // reuse
             messagesContainer.appendChild(msgBubble);
-            const defaultAIBubble = document.createElement('div');
-            defaultAIBubble.textContent = problemTitle + "\n\n" + description + "\n\n" + currentCode;
-            defaultAIBubble.style.width = '100%';
-            defaultAIBubble.style.alignSelf = 'flex-start'; // left-aligned
-            defaultAIBubble.style.backgroundColor = '#444';
-            defaultAIBubble.style.color = '#fff';
-            defaultAIBubble.style.padding = '6px 10px';
-            defaultAIBubble.style.borderRadius = '12px';
-            defaultAIBubble.style.marginBottom = '4px';
-            defaultAIBubble.style.fontSize = '12px';
-            defaultAIBubble.style.flexShrink = 0; // keep visible
 
-            messagesContainer.appendChild(defaultAIBubble);
-    
-            //Scroll to bottom
+            // ai chat thinking bubble
+            const thinkingBubble = document.createElement('div');
+            thinkingBubble.textContent = "🤖 is thinking...";
+            thinkingBubble.style.width = '100%';
+            thinkingBubble.style.alignSelf = 'flex-start'; 
+            thinkingBubble.style.backgroundColor = '#444';
+            thinkingBubble.style.color = '#bbb';
+            thinkingBubble.style.padding = '6px 10px';
+            thinkingBubble.style.borderRadius = '12px';
+            thinkingBubble.style.marginBottom = '4px';
+            thinkingBubble.style.fontSize = '12px';
+            thinkingBubble.style.fontStyle = 'italic';
+
+            messagesContainer.appendChild(thinkingBubble);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            chrome.runtime.sendMessage(
+                { action: "solveProblem", problem: `${text} \n\n + ${description} + ${problemTitle} + ${currentCode}` },
+                (response) => {
+                    if (chrome.runtime.lastError || !response) {
+                        thinkingBubble.textContent = "⚠️ Error: No response from background script.";
+                    } else if (response.success) {
+                        thinkingBubble.textContent = `🤖: ${response.text}`;
+                        thinkingBubble.style.fontStyle = 'normal'; // reset style
+                        thinkingBubble.style.color = '#fff';
+                    } else {
+                        thinkingBubble.textContent = `⚠️ Error: ${response.error}`;
+                    }
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            );
     
             // Clear input
             userInput.value = '';
