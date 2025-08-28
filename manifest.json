@@ -8,6 +8,9 @@
     "storage",
     "tabs"
   ],
+  "host_permissions": [
+    "https://api.generativeai.google/v1beta2/*"
+  ],
   "content_scripts": [
     {
       "matches": [
