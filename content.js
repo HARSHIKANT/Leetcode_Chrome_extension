@@ -12,8 +12,8 @@ function addAIHelpButton() {
     // Create the button
     const aiHelpButton = document.createElement('button');
     aiHelpButton.id = 'ai-help-button';
-    aiHelpButton.innerHTML = '🧠 AI HELP';
-    aiHelpButton.style.height = '30px';
+    aiHelpButton.innerHTML = '<span style="font-size:18px">🔥 </span> &nbsp <span style = "font-weight:bold">AI HELP</span>';
+    aiHelpButton.style.height = '35px';
     aiHelpButton.style.width = 'auto';
     aiHelpButton.style.padding = '4px 8px 4px';
     aiHelpButton.style.fontSize = '12px';
@@ -21,6 +21,10 @@ function addAIHelpButton() {
     aiHelpButton.style.borderRadius = '6px';
     aiHelpButton.style.backgroundColor = 'black';
     aiHelpButton.style.cursor = 'pointer';
+    aiHelpButton.style.margin='0px';
+    aiHelpButton.style.display = 'flex';
+    aiHelpButton.style.alignItems = 'center';
+    aiHelpButton.style.justifyContent = 'center';
     
     // Create the container div
     const verticalContainer = document.createElement('div');
@@ -51,8 +55,8 @@ function addNewAIHandler() {
         existingChatBox.style.display = existingChatBox.style.display === 'none' ? 'block' : 'none';
         // Chat box exists → remove it and reset button
         existingChatBox.remove();
-        aiHelpButton.innerHTML = '🧠 AI HELP';
-        aiHelpButton.style.height = '30px';
+        aiHelpButton.innerHTML = '<span style="font-size:18px">🔥 </span> &nbsp <span style = "font-weight:bold">AI HELP</span>';
+        aiHelpButton.style.height = '35px';
         aiHelpButton.style.width = 'auto';
         aiHelpButton.style.padding = '4px 8px 4px';
         aiHelpButton.style.fontSize = '12px';
@@ -60,6 +64,10 @@ function addNewAIHandler() {
         aiHelpButton.style.borderRadius = '6px';
         aiHelpButton.style.backgroundColor = 'black';
         aiHelpButton.style.cursor = 'pointer';
+        aiHelpButton.style.margin='0px';
+        aiHelpButton.style.display = 'flex';
+        aiHelpButton.style.alignItems = 'center';
+        aiHelpButton.style.justifyContent = 'center';
         
         return;
     }
@@ -79,7 +87,7 @@ function addNewAIHandler() {
     chatBox.style.justifyContent = 'flex-end';
     chatBox.style.width = '100%';
     chatBox.style.height = '300px';
-    chatBox.style.maxHeight = '300px';         // optional, can scroll when messages overflow
+    chatBox.style.maxHeight = '600px';         // optional, can scroll when messages overflow
     chatBox.style.display = 'flex';
     chatBox.style.flexDirection = 'column';
     chatBox.style.marginTop = '4px';
@@ -91,6 +99,54 @@ function addNewAIHandler() {
     chatBox.style.overflowY = 'auto';
     chatBox.style.backgroundColor = '#1e1e1e';
     chatBox.style.color = '#ffffff';           // All text in white
+
+
+
+    chatBox.style.position = 'relative';
+    // let the inner messages scroll, keep the outer fixed so the handle is fixed
+    chatBox.style.overflowY = 'hidden';
+    // make room for the handle so it doesn’t overlap input/messages
+    chatBox.style.paddingBottom = '14px'; // 8px + ~6px handle
+
+
+    // resize the chatbox
+
+    // After creating chatBox
+    const resizer = document.createElement('div');
+    resizer.style.height = '6px';
+    resizer.style.cursor = 'ns-resize';
+    resizer.style.borderTop = '1px solid #666';
+    resizer.style.userSelect = 'none';
+    resizer.style.position = 'absolute';
+    resizer.style.bottom = '0';
+    resizer.style.left = '0';
+    resizer.style.width = '100%';
+    resizer.style.background = 'transparent'; // or '#444' if you want a visible bar
+    resizer.style.zIndex = '1';
+
+    let startY, startHeight;
+
+    resizer.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        startY = e.clientY;
+        startHeight = parseInt(window.getComputedStyle(chatBox).height, 10);
+
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', stopResize);
+    });
+
+    function resize(e) {
+        const newHeight = startHeight + (e.clientY - startY);
+        if (newHeight > 150 && newHeight < 600) {   // limits: min 150px, max 600px
+            chatBox.style.height = newHeight + 'px';
+        }
+    }
+
+    function stopResize() {
+        document.removeEventListener('mousemove', resize);
+        document.removeEventListener('mouseup', stopResize);
+    }
+
 
     // message container
 
@@ -106,7 +162,7 @@ function addNewAIHandler() {
 
     // Add a default message from AI
     const defaultMsgBubble = document.createElement('div');
-    defaultMsgBubble.textContent = "🤖: Hello! How can I ASSIST you today?";
+    defaultMsgBubble.innerHTML = "<span style='font-size:18px'>😎</span>: Hello! How can I ASSIST you today?";
     defaultMsgBubble.style.width = '100%';
     defaultMsgBubble.style.alignSelf = 'flex-start';
     defaultMsgBubble.style.backgroundColor = '#444';
@@ -115,6 +171,7 @@ function addNewAIHandler() {
     defaultMsgBubble.style.borderRadius = '12px';
     defaultMsgBubble.style.marginBottom = '4px';
     defaultMsgBubble.style.fontSize = '12px';
+
     messagesContainer.appendChild(defaultMsgBubble);
 
     
@@ -152,6 +209,9 @@ function addNewAIHandler() {
     // Append input container to chat box
     chatBox.appendChild(inputContainer);
 
+    // Append resizer to the chat box at the last
+    chatBox.appendChild(resizer);
+
     userInput.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && !event.shiftKey) { // Enter without Shift
             event.preventDefault(); // prevent newline
@@ -159,13 +219,15 @@ function addNewAIHandler() {
             if (text === '') return;
             userInput.style.height = 'auto';          // reset height
             userInput.style.height = Math.min(userInput.scrollHeight, 80) + 'px'; // grow up to 4 lines (~80px)
+            // Clear input
+            userInput.value = '';
+            userInput.style.height = 'auto'; // reset input height if auto-growing
 
             // Get the problem Title
             const problemTitle = document.querySelector('[class*="text-title"]').innerText;
             // Get the problem description
             const description = document.querySelector('div[data-track-load="description_content"]').textContent;
             // My code to send message to background script
-            // Correct selector for a div with both classes
             const currentCode = document.querySelector('div.view-lines.monaco-mouse-cursor-text').textContent;
 
 
@@ -176,7 +238,7 @@ function addNewAIHandler() {
             msgBubble.style.color = '#fff';
             msgBubble.style.padding = '6px 10px';
             msgBubble.style.borderRadius = '12px';
-            msgBubble.style.maxWidth = '50%';
+            msgBubble.style.maxWidth = '80%';
             msgBubble.style.wordWrap = 'break-word';
             msgBubble.style.marginBottom = '4px';
             msgBubble.style.alignSelf = 'flex-end'; // top-right alignment
@@ -191,7 +253,7 @@ function addNewAIHandler() {
 
             // ai chat thinking bubble
             const thinkingBubble = document.createElement('div');
-            thinkingBubble.textContent = "🤖 is thinking...";
+            thinkingBubble.innerHTML = "<span style='font-size:20px; font-weight:bold; font-style:normal'>🤔</span> thinking...";
             thinkingBubble.style.width = '100%';
             thinkingBubble.style.alignSelf = 'flex-start'; 
             thinkingBubble.style.backgroundColor = '#444';
@@ -205,19 +267,56 @@ function addNewAIHandler() {
             messagesContainer.appendChild(thinkingBubble);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+            // formating ai response 
+            function formatMarkdown(md) {
+                return md
+                  // Headings (##, ###, etc.)
+                  .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                  .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                  .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+              
+                  // Bold **text**
+                  .replace(/\*\*(.*?)\*\*/gim, '<b>$1</b>')
+              
+                  // Italic *text* OR _text_
+                  .replace(/(\*|_)(.*?)\1/gim, '<i>$2</i>')
+              
+                  // Inline code `code`
+                  .replace(/`([^`]+)`/gim, '<code>$1</code>')
+              
+                  // Code blocks ```...```
+                  .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+              
+                  // Links [text](url)
+                  .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank">$1</a>')
+              
+                  // Numbered lists
+                  .replace(/^\d+\.\s+(.*$)/gim, '<li>$1</li>')
+              
+                  // Bulleted lists
+                  .replace(/^\-\s+(.*$)/gim, '<li>$1</li>')
+              
+                  // Wrap <li> inside <ul> if needed
+                  .replace(/(<li>[\s\S]*?<\/li>)/gim, '<ul>$1</ul>')
+              
+                  // Newlines → <br>
+                  .replace(/\n/g, '<br>');
+              }
+              
+
             chrome.runtime.sendMessage(
-                { action: "solveProblem", problem: `${text} \n\n + ${description} + ${problemTitle} + ${currentCode}` },
+                { action: "solveProblem", problem: `${problemTitle} + ${description}` },
                 (response) => {
                     if (chrome.runtime.lastError || !response) {
                         thinkingBubble.textContent = "⚠️ Error: No response from background script.";
                     } else if (response.success) {
-                        thinkingBubble.textContent = `🤖: ${response.text}`;
+                        thinkingBubble.innerHTML = formatMarkdown(`<span style='font-size:22px; font-weight:bold;background: linear-gradient(90deg,rgb(226, 230, 0),rgb(255, 225, 1)); -webkit-background-clip: text; color: transparent;'>✨</span>: ${response.text}`);
                         thinkingBubble.style.fontStyle = 'normal'; // reset style
                         thinkingBubble.style.color = '#fff';
                     } else {
                         thinkingBubble.textContent = `⚠️ Error: ${response.error}`;
                     }
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    //messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
             );
     
