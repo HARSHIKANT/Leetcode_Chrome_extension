@@ -1,8 +1,24 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "solveProblem") {
+      
       (async () => {
         try {
           const apiKey = "AIzaSyDa7u_aiOZR2GxGt152ZiI0s6RfpgNd5y0";  // <--- replace with your real key
+          const prompt = `
+            You are a helpful assistant. 
+            If the user is asking about the coding problem (context given below), 
+            answer strictly based on the {title + description}. 
+
+            Coding Problem Context:
+            Title: ${request.problemTitle}
+            Description: ${request.description}
+
+            User Query:
+            ${request.query}
+
+            ⚠️ Keep answers concise (max 100 words).
+                  `;
+
   
           const response = await fetch(
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
@@ -17,9 +33,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                   {
                     parts: [
                       {
-                        text: `ANSWER ME ONLY UPTO 100 WORDS.\n\n I am providing you my doubt about a CODING question, i have giving the description as well as my code ( may be half written). You have to give me only HINTS and STEPS for solving the problem NEVER give me complete code.
+                        text: prompt
                         
-                        Problem: ${request.problem}`
+                        
                       }
                     ]
                   }

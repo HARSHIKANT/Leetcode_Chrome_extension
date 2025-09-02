@@ -326,7 +326,9 @@ function addNewAIHandler() {
               
 
             chrome.runtime.sendMessage(
-                { action: "solveProblem", problem: `${problemTitle} + ${description}` },
+                { action: "solveProblem", problemTitle: problemTitle,
+                    description: description,
+                    query: text },
                 (response) => {
                     if (chrome.runtime.lastError || !response) {
                         thinkingBubble.textContent = "⚠️ Error: No response from background script.";
