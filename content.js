@@ -1,6 +1,27 @@
 
 window.addEventListener('load', addAIHelpButton);
 
+// On page load, disable/blur the LeetCode div
+function disableLeetCodeDiv() {
+    const targetDiv = document.querySelector(
+        'div.mx-auto.flex.w-full.max-w-\\[700px\\].flex-col.gap-4.px-4.py-3'
+    );
+
+    if (targetDiv) {
+        targetDiv.style.pointerEvents = 'none';
+        targetDiv.style.opacity = '0.4';
+        targetDiv.style.filter = 'blur(4px)';
+    }
+}
+
+// run initially
+window.addEventListener('load', disableLeetCodeDiv);
+
+// watch for future re-renders
+const observer = new MutationObserver(disableLeetCodeDiv);
+observer.observe(document.body, { childList: true, subtree: true });
+
+
 function addAIHelpButton() {
     // // Create the container div
     const aiHelpContainer = document.createElement('div');
