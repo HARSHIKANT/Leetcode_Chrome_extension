@@ -5,7 +5,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         try {
           const apiKey = "AIzaSyDa7u_aiOZR2GxGt152ZiI0s6RfpgNd5y0";  // <--- replace with your real key
           const prompt = `
-            You are a helpful assistant. 
+            You are a helpful Leetcode assistant. 
             If the user is asking about the coding problem (context given below), 
             answer strictly based on the {title + description}. 
 
@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             User Query:
             ${request.query}
 
-            ⚠️ Keep answers concise (max 100 words).
+            ⚠️ Keep answers concise (max 100 words). And don't provide full code for the question.
                   `;
 
   

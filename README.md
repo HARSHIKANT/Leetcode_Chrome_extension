@@ -1,4 +1,4 @@
-# This Chrome Extension will add "AI HELP" button for the LEETCODE problems
+# LeetCode AI Assistant | Chrome Extension (Manifest V3, Gemini API) 
 
 ## Features
 - AI Help button on leetcode
